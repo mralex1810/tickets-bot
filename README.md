@@ -68,3 +68,10 @@ python3 bot/bot.py
 Можно поднять на одном хосте сразу несколько ботов. Пример конфигурации для трех одновременно в файле `docker-compose-example3.yml`. В таком случае нужно не забывать менять `DB_HOST` на соответсвующее название postgress (`postgress1`, `postgrass2` или `postgress3` ...)
 
 По всем вопросам можно написать мне [в Telegram](https://t.me/MrAlex18)
+
+Для КТ y2021 сохранены билеты по следующим предметам: 
+
+- [Дифференциальные уравнения](https://disk.yandex.ru/d/arFSN0SgNKSjQw)
+- [Математический анализ (Виноградов)](https://disk.yandex.ru/d/bg2JKbSCc-Tncw)
+- [Математическая логика](https://disk.yandex.ru/d/KdAO6CGygJhJJw)
+- [Теория вероятностей (Лимар)](https://disk.yandex.ru/d/64Jn7K04nQf_Ug)
