@@ -1,0 +1,80 @@
+version: "3.6"
+services:
+    bot1:
+        image: nsychev/tickets-bot
+        build:
+            context: .
+            dockerfile: Dockerfile
+        depends_on:
+            - postgres1
+        volumes:
+            - ./bot.py:/app/bot.py
+            - ./mathan/:/app/tickets/
+            - ./models/:/app/models/
+            - ./config_mathan/:/app/config/
+        restart: always
+        environment:
+            - TZ=Europe/Moscow
+        networks:
+            - bot1_network
+    postgres1:
+        image: postgres:alpine
+        environment:
+            POSTGRES_HOST_AUTH_METHOD: trust
+        restart: always
+        networks:
+            - bot1_network
+
+    bot2:
+        image: nsychev/tickets-bot
+        build:
+            context: .
+            dockerfile: Dockerfile
+        depends_on:
+            - postgres2
+        volumes:
+            - ./bot.py:/app/bot.py
+            - ./mathlog/:/app/tickets/
+            - ./models/:/app/models/
+            - ./config_mathlog/:/app/config/
+        restart: always
+        environment:
+            - TZ=Europe/Moscow
+        networks:
+            - bot2_network
+    postgres2:
+        image: postgres:alpine
+        environment:
+            POSTGRES_HOST_AUTH_METHOD: trust
+        restart: always
+        networks:
+            - bot2_network
+    bot3:
+        image: nsychev/tickets-bot
+        build:
+            context: .
+            dockerfile: Dockerfile
+        depends_on:
+            - postgres3
+        volumes:
+            - ./bot.py:/app/bot.py
+            - ./teorver/:/app/tickets/
+            - ./models/:/app/models/
+            - ./config_teorver/:/app/config/
+        restart: always
+        environment:
+            - TZ=Europe/Moscow
+        networks:
+            - bot3_network
+    postgres3:
+        image: postgres:alpine
+        environment:
+            POSTGRES_HOST_AUTH_METHOD: trust
+        restart: always
+        networks:
+            - bot3_network
+
+networks:
+    bot1_network:
+    bot2_network:
+    bot3_network:

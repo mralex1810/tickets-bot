@@ -1,8 +1,8 @@
-from config import *
+from config.config import *
 from playhouse.postgres_ext import *
 
 
-db = PostgresqlExtDatabase(DB_HOST, user=DB_USER, host=DB_HOST, port=DB_PORT)
+db = PostgresqlExtDatabase(DB, user=DB_USER, host=DB_HOST, port=DB_PORT)
 
 
 class Ticket(Model):

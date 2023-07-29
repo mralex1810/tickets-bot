@@ -1,3 +1,9 @@
-bot/config.py
+config/config.py
 bot/__pycache__/
 tickets/
+config_mathan
+config_mathlog
+mathan
+mathlog
+tmp_mathlog
+differs

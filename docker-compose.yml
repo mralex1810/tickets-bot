@@ -1,16 +1,29 @@
 version: "3.6"
 services:
-    bot:
+    bot1:
         image: nsychev/tickets-bot
         build:
             context: .
             dockerfile: Dockerfile
         depends_on:
-            - postgres
+            - postgres1
         volumes:
+            - ./bot.py:/app/bot.py
             - ./tickets/:/app/tickets/
-            - ./bot/:/app/bot/
+            - ./models/:/app/models/
+            - ./config/:/app/config/
         restart: always
-    postgres:
+        environment:
+            - TZ=Europe/Moscow
+        networks:
+            - bot1_network
+    postgres1:
         image: postgres:alpine
+        environment:
+            POSTGRES_HOST_AUTH_METHOD: trust
         restart: always
+        networks:
+            - bot1_network
+
+networks:
+    bot1_network:
