@@ -20,3 +20,4 @@ class Config:
     TOKEN = os.getenv("TICKETS_BOT_TOKEN")
     ADMIN_ID = int(os.getenv("TICKETS_BOT_ADMIN_ID"))
     DB = os.getenv("TICKETS_BOT_DB")
+    WEBHOOK = os.getenv("TICKETS_BOT_WEBHOOK")

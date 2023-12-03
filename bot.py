@@ -202,5 +202,14 @@ if __name__ == "__main__":
     db.connect()
     db.create_tables([Ticket, TicketSearch, Image])
 
-    updater.start_polling()
+    logger.info("Dropping old webhook...")
+    updater.bot.delete_webhook()
+
+    if Config.WEBHOOK:
+        logger.info("Start webhook...")
+        updater.start_webhook(listen='0.0.0.0', url_path='/', webhook_url=Config.WEBHOOK)
+    else:
+        logger.info("Start polling...")
+        updater.start_polling()
+
     updater.idle()

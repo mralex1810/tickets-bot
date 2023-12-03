@@ -10,6 +10,8 @@ RUN apk add --update --no-cache build-base postgresql-dev python3-dev musl-dev l
 ENV PYTHONPATH=/app/
 WORKDIR /app/
 
+EXPOSE 8080
+
 COPY . /app/
 
 CMD ["python3", "bot.py"]
