@@ -156,34 +156,8 @@ def dump(update, context):
     thread = Thread(target=dump_thread, args=(update, context))
     thread.start()
 
-
-def tag_factory(tag):
-    def process_tag(update, context):
-        log(update)
-        response = ""
-        for ticket in Ticket.select().where(Ticket.tag == tag).order_by(Ticket.id):
-            response += "/{} {}\n".format(ticket.id, ticket.name)
-            if len(response) >= 4000:
-                update.message.reply_text(response)
-                time.sleep(0.3)
-                response = ""
-        update.message.reply_text(response)
-
-    return process_tag
-
-
-def random_tag_factory(tag):
-    def process_tag(update: Update, context):
-        log(update)
-        for ticket in Ticket.select().where(Ticket.tag == tag).order_by(fn.Random()).limit(1):
-            update.message.reply_text("/{} {}\n".format(ticket.id, ticket.name))
-
-    return process_tag
-
-
 def error(update, context):
     logger.warning(str(context.error))
-
 
 if __name__ == "__main__":
     updater = Updater(Config.TOKEN, request_kwargs={'read_timeout': 1000, 'connect_timeout': 1000}, use_context=True)
@@ -191,9 +165,6 @@ if __name__ == "__main__":
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("scan", scan))
-    for tag in Config.TAGS:
-        dp.add_handler(CommandHandler(tag, tag_factory(tag)))
-        dp.add_handler(CommandHandler("rnd_" + tag, random_tag_factory(tag)))
     dp.add_handler(CommandHandler("dump_all", dump))
     dp.add_handler(MessageHandler(Filters.all, ticket))
     dp.add_error_handler(error)

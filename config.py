@@ -15,7 +15,6 @@ class Config:
     [Бота](https://github.com/nsychev/tickets-bot) сделал @nsychev, адаптировал для у2021 @MrAlex18
     ''' + HELP_MESSAGE
 
-    TAGS = ["min", "pro"]
     PATH = "tickets/"
     TOKEN = os.getenv("TICKETS_BOT_TOKEN")
     ADMIN_ID = int(os.getenv("TICKETS_BOT_ADMIN_ID"))
