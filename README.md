@@ -11,14 +11,8 @@
 ## Как поднять?
 
 ### Рекомендуемый способ
-
-Поставить [Docker](https://docs.docker.com/install/) и [docker-compose](https://docs.docker.com/compose/install/).
-
-### Также можно
-
-Поставить [PostgreSQL](https://www.postgresql.org/download/), [Python 3](https://python.org).
-
-Установить Python-библиотеки `PyYAML`, `python-telegram-bot` (версия 13.15), `peewee` и `psycopg2`.
+Поставить [Docker](https://docs.docker.com/install/) и собрать образ из
+[Dockerfile](Dockerfile).
 
 ### Настройка бота
 
@@ -43,34 +37,41 @@ tag:  min
 
 3. Создать бота у [@BotFather](https://t.me/BotFather) и запомнить токен.
 
-4. Внести свои значения в `config/config.py`.
+4. Запустить бота.
 
-5. Запустить бота.
+Docker-way через `docker compose`:
 
-Docker-way:
+```yaml
+version: '3'
+services:
+  math-tickets:
+    image: tickets-bot:1
+    volumes:
+    - ./math:/app/tickets:ro
+    - db:/db
+    environment:
+    - TICKETS_BOT_TOKEN="TOKEN_FROM_BOTFATHER"
+    - TICKETS_BOT_ADMIN_ID="YOUR_TELEGRAM_ID"
+    - TICKETS_BOT_DB="/db/math.sqlite3"
 
-```bash
-docker-compose up -d
+volumes:
+  db:
 ```
 
-Non-Docker way:
+6. Синхронизировать директорию с базой данных: от имени админа (его ID в Telegram
+указывается в `TICKETS_BOT_ADMIN_ID`) ввести команду `/scan`. Если изменились билеты,
+достаточно лишь заново просканить их ботом — перезагружать бота не нужно.
 
-```bash
-python3 bot/bot.py
-```
-
-6. Синхронизировать директорию с базой данных: от имени админа (его ID в Telegram указывается в `bot/config.py`) ввести команду `/scan`. Если изменились билеты, достаточно лишь заново просканить их ботом — перезагружать бота не нужно.
-би
-> **NB**: при (ре)старте бот **не подгружает** леты из директории
+> **NB**: при (ре)старте бот **не подгружает** билеты из директории
 
 **Готово!** Вы восхитительны!
 
-Можно поднять на одном хосте сразу несколько ботов. Пример конфигурации для трех одновременно в файле `docker-compose-example3.yml`. В таком случае нужно не забывать менять `DB_HOST` на соответсвующее название postgress (`postgress1`, `postgrass2` или `postgress3` ...)
+Можно поднять на одном хосте сразу несколько ботов. В таком случае нужно не забывать
+менять `TICKETS_BOT_DB` на соответсвующий путь.
 
 По всем вопросам можно написать мне [в Telegram](https://t.me/MrAlex18)
 
 Для КТ y2021 сохранены билеты по следующим предметам: 
-
 - [Дифференциальные уравнения](https://disk.yandex.ru/d/arFSN0SgNKSjQw)
 - [Математический анализ (Виноградов)](https://disk.yandex.ru/d/bg2JKbSCc-Tncw)
 - [Математическая логика](https://disk.yandex.ru/d/KdAO6CGygJhJJw)
