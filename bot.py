@@ -159,6 +159,27 @@ def dump(update, context):
 def error(update, context):
     logger.warning(str(context.error))
 
+def tag_handler(update, context):
+    if not update.message.text.startswith("/tag"):
+        update.message.reply_text("Увы, я не могу понять о чем вы (а вы не можете понять о чем я)")
+        return
+    text = update.message.text[4:].strip()
+    if not text:
+        tags = Ticket.select(Ticket.tag.distinct())
+        tags = ", ".join(tag.tag for tag in tags)
+        if not tags:
+            tags = "не знаю"
+        update.message.reply_text("Теги, которые я знаю: " + tags)
+        return
+    response = ""
+    tickets = Ticket.select(Ticket.id, Ticket.name).where(Ticket.tag == text)
+    for ticket in tickets:
+        response += "/{} {}\n".format(ticket.id, ticket.name)
+    if response == "":
+        response = "Ничего не найдено по тегу " + text
+    update.message.reply_text(response)
+
+
 if __name__ == "__main__":
     updater = Updater(Config.TOKEN, request_kwargs={'read_timeout': 1000, 'connect_timeout': 1000}, use_context=True)
     dp = updater.dispatcher
@@ -166,6 +187,7 @@ if __name__ == "__main__":
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("scan", scan))
     dp.add_handler(CommandHandler("dump_all", dump))
+    dp.add_handler(CommandHandler("tag", tag_handler))
     dp.add_handler(MessageHandler(Filters.all, ticket))
     dp.add_error_handler(error)
 
