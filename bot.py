@@ -81,6 +81,18 @@ def help(update, context):
     log(update)
     update.message.reply_text(Config.HELP_MESSAGE, parse_mode="Markdown", disable_web_page_preview=True)
 
+def send_tickets(update, tickets):
+    response = ""
+    for tid, name in tickets:
+        response += "/{} {}\n".format(tid, name)
+        if len(response) > 3900:
+            update.message.reply_text(response)
+            time.sleep(0.3)
+            response = ""
+    if response:
+        update.message.reply_text(response)
+
+
 
 def ticket(update: Update, context: ContextTypes.bot_data):
     if not update.message:
@@ -118,15 +130,12 @@ def ticket(update: Update, context: ContextTypes.bot_data):
 
 def search(update: Update, context):
     response = ""
-    try:
-        cur = db.execute_sql('select rowid, name from ticketsearch(?)', (update.message.text,))
-        for rowid, name in cur.fetchall():
-            response += "/{} {}\n".format(rowid, name)
-    except:
-        pass
-    if response == "":
-        response = "Ничего не найдено"
-    update.message.reply_text(response)
+    cur = db.execute_sql('select rowid, name from ticketsearch(?)', (update.message.text,))
+    tickets = [(rowid, name) for rowid, name in cur.fetchall()]
+    if not tickets:
+        update.message.reply_text("Ничего не найдено")
+    else:
+        send_tickets(update, tickets)
 
 
 def dump_thread(update, context):
@@ -173,11 +182,11 @@ def tag_handler(update, context):
         return
     response = ""
     tickets = Ticket.select(Ticket.id, Ticket.name).where(Ticket.tag == text)
-    for ticket in tickets:
-        response += "/{} {}\n".format(ticket.id, ticket.name)
-    if response == "":
-        response = "Ничего не найдено по тегу " + text
-    update.message.reply_text(response)
+    tickets = [(ticket.id, ticket.name) for ticket in tickets]
+    if tickets:
+        send_tickets(update, tickets)
+    else:
+        update.message.reply_text("Ничего не найдено по тегу " + text)
 
 
 if __name__ == "__main__":
