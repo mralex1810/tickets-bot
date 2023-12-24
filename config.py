@@ -5,7 +5,7 @@ class Config:
     Сообщение c числом (типа «билет 123», /123 или просто 123) — поиск по номеру билета
     Текстовое сообщение — поиск по темам билетов
 
-    /[tag] — выводит все вопросы теормина; /rnd\\_[tag] - рандомный
+    /tag — выводит все теги; /tag <tag> - все билеты по определенному тегу
 
     По поводу багов/неточностей/дополнений писать @MrAlex18
     '''
@@ -15,7 +15,6 @@ class Config:
     [Бота](https://github.com/nsychev/tickets-bot) сделал @nsychev, адаптировал для у2021 @MrAlex18
     ''' + HELP_MESSAGE
 
-    TAGS = ["min", "pro"]
     PATH = "tickets/"
     TOKEN = os.getenv("TICKETS_BOT_TOKEN")
     ADMIN_ID = int(os.getenv("TICKETS_BOT_ADMIN_ID"))

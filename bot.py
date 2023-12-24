@@ -81,6 +81,18 @@ def help(update, context):
     log(update)
     update.message.reply_text(Config.HELP_MESSAGE, parse_mode="Markdown", disable_web_page_preview=True)
 
+def send_tickets(update, tickets):
+    response = ""
+    for tid, name in tickets:
+        response += "/{} {}\n".format(tid, name)
+        if len(response) > 3900:
+            update.message.reply_text(response)
+            time.sleep(0.3)
+            response = ""
+    if response:
+        update.message.reply_text(response)
+
+
 
 def ticket(update: Update, context: ContextTypes.bot_data):
     if not update.message:
@@ -118,15 +130,12 @@ def ticket(update: Update, context: ContextTypes.bot_data):
 
 def search(update: Update, context):
     response = ""
-    try:
-        cur = db.execute_sql('select rowid, name from ticketsearch(?)', (update.message.text,))
-        for rowid, name in cur.fetchall():
-            response += "/{} {}\n".format(rowid, name)
-    except:
-        pass
-    if response == "":
-        response = "Ничего не найдено"
-    update.message.reply_text(response)
+    cur = db.execute_sql('select rowid, name from ticketsearch(?)', (update.message.text,))
+    tickets = [(rowid, name) for rowid, name in cur.fetchall()]
+    if not tickets:
+        update.message.reply_text("Ничего не найдено")
+    else:
+        send_tickets(update, tickets)
 
 
 def dump_thread(update, context):
@@ -156,33 +165,28 @@ def dump(update, context):
     thread = Thread(target=dump_thread, args=(update, context))
     thread.start()
 
-
-def tag_factory(tag):
-    def process_tag(update, context):
-        log(update)
-        response = ""
-        for ticket in Ticket.select().where(Ticket.tag == tag).order_by(Ticket.id):
-            response += "/{} {}\n".format(ticket.id, ticket.name)
-            if len(response) >= 4000:
-                update.message.reply_text(response)
-                time.sleep(0.3)
-                response = ""
-        update.message.reply_text(response)
-
-    return process_tag
-
-
-def random_tag_factory(tag):
-    def process_tag(update: Update, context):
-        log(update)
-        for ticket in Ticket.select().where(Ticket.tag == tag).order_by(fn.Random()).limit(1):
-            update.message.reply_text("/{} {}\n".format(ticket.id, ticket.name))
-
-    return process_tag
-
-
 def error(update, context):
     logger.warning(str(context.error))
+
+def tag_handler(update, context):
+    if not update.message.text.startswith("/tag"):
+        update.message.reply_text("Увы, я не могу понять о чем вы (а вы не можете понять о чем я)")
+        return
+    text = update.message.text[4:].strip()
+    if not text:
+        tags = Ticket.select(Ticket.tag.distinct())
+        tags = ", ".join(tag.tag for tag in tags)
+        if not tags:
+            tags = "не знаю"
+        update.message.reply_text("Теги, которые я знаю: " + tags)
+        return
+    response = ""
+    tickets = Ticket.select(Ticket.id, Ticket.name).where(Ticket.tag == text)
+    tickets = [(ticket.id, ticket.name) for ticket in tickets]
+    if tickets:
+        send_tickets(update, tickets)
+    else:
+        update.message.reply_text("Ничего не найдено по тегу " + text)
 
 
 if __name__ == "__main__":
@@ -191,10 +195,8 @@ if __name__ == "__main__":
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("scan", scan))
-    for tag in Config.TAGS:
-        dp.add_handler(CommandHandler(tag, tag_factory(tag)))
-        dp.add_handler(CommandHandler("rnd_" + tag, random_tag_factory(tag)))
     dp.add_handler(CommandHandler("dump_all", dump))
+    dp.add_handler(CommandHandler("tag", tag_handler))
     dp.add_handler(MessageHandler(Filters.all, ticket))
     dp.add_error_handler(error)
 

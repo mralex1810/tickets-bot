@@ -13,5 +13,6 @@ WORKDIR /app/
 EXPOSE 8080
 
 COPY . /app/
+RUN mkdir -p /app/tickets
 
 CMD ["python3", "bot.py"]
